@@ -1,14 +1,13 @@
-# Imagen base
-FROM eclipse-temurin:21-jdk-alpine
-
-# Carpeta dentro del contenedor
+# -------- BUILD --------
+FROM maven:3.9.9-eclipse-temurin-21 AS build
 WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
 
-# Copiar el jar
-COPY target/app-backend-0.0.1-SNAPSHOT.jar app.jar
+# -------- RUN --------
+FROM eclipse-temurin:21-jdk-alpine
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
 
-# Puerto
 EXPOSE 8080
-
-# Ejecutar app
-ENTRYPOINT ["java","-jar","app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
