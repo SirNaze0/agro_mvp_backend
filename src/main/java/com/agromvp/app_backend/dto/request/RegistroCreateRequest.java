@@ -1,7 +1,9 @@
 package com.agromvp.app_backend.dto.request;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,7 +16,6 @@ import java.util.UUID;
 @Setter
 public class RegistroCreateRequest {
 
-    @NotNull(message = "clientUuid es obligatorio")
     private UUID clientUuid;
 
     @NotNull(message = "usuarioId es obligatorio")
@@ -32,10 +33,8 @@ public class RegistroCreateRequest {
     private Double latitud;
     private Double longitud;
 
-    @NotBlank(message = "estadoRegistro es obligatorio")
     private String estadoRegistro;
 
-    @NotBlank(message = "estadoFoto es obligatorio")
     private String estadoFoto;
 
     @Size(max = 500, message = "observaciones no puede exceder 500 caracteres")

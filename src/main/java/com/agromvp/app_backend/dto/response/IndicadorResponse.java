@@ -10,6 +10,7 @@ public class IndicadorResponse {
     private Long id;
     private String codigo;
     private String nombre;
+    private Integer tipoIndicador;
     private String descripcion;
     private String unidadMedida;
     private String tipoDato;

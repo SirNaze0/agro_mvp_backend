@@ -11,7 +11,6 @@ import java.util.UUID;
 @Setter
 public class RegistroValorRequest {
 
-    @NotNull(message = "clientUuid del valor es obligatorio")
     private UUID clientUuid;
 
     @NotNull(message = "indicadorId es obligatorio")

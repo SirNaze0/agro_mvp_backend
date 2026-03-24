@@ -24,6 +24,9 @@ public class Indicador {
     @Column(nullable = false)
     private String nombre;
 
+    @Column(name = "tipo_indicador", nullable = false)
+    private Integer tipoIndicador;
+
     private String descripcion;
 
     @Column(name = "unidad_medida")
@@ -36,6 +39,7 @@ public class Indicador {
     private String formulaReferencia;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean activo = true;
 
     @Column(name = "created_at")

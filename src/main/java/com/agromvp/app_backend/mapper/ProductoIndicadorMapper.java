@@ -24,6 +24,7 @@ public class ProductoIndicadorMapper {
                 .indicadorId(entity.getIndicador() != null ? entity.getIndicador().getId() : null)
                 .indicadorCodigo(entity.getIndicador() != null ? entity.getIndicador().getCodigo() : null)
                 .indicadorNombre(entity.getIndicador() != null ? entity.getIndicador().getNombre() : null)
+                .tipoIndicador(entity.getIndicador() != null ? entity.getIndicador().getTipoIndicador() : null)
                 .unidadMedida(entity.getIndicador() != null ? entity.getIndicador().getUnidadMedida() : null)
                 .tipoDato(entity.getIndicador() != null ? entity.getIndicador().getTipoDato() : null)
                 .build();

@@ -16,6 +16,7 @@ public class IndicadorMapper {
                 .id(entity.getId())
                 .codigo(entity.getCodigo())
                 .nombre(entity.getNombre())
+                .tipoIndicador(entity.getTipoIndicador())
                 .descripcion(entity.getDescripcion())
                 .unidadMedida(entity.getUnidadMedida())
                 .tipoDato(entity.getTipoDato())

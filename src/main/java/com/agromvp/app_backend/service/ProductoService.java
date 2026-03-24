@@ -16,16 +16,32 @@ public class ProductoService {
     private final ProductoMapper productoMapper;
 
     public List<ProductoResponse> listarActivos() {
-        return productoRepository.findByActivoTrueOrderByNombreAsc()
+        return listarActivos(null);
+    }
+
+    public List<ProductoResponse> listarActivos(Long usuarioId) {
+        List<ProductoResponse> productos = (usuarioId == null
+                ? productoRepository.findByActivoTrueOrderByNombreAsc()
+                : productoRepository.findActivosByUsuarioId(usuarioId))
                 .stream()
                 .map(productoMapper::toResponse)
                 .toList();
+
+        return productos;
     }
 
     public List<ProductoResponse> listarPorTipo(Long tipoProductoId) {
-        return productoRepository.findByTipoProductoIdAndActivoTrueOrderByNombreAsc(tipoProductoId)
+        return listarPorTipo(tipoProductoId, null);
+    }
+
+    public List<ProductoResponse> listarPorTipo(Long tipoProductoId, Long usuarioId) {
+        List<ProductoResponse> productos = (usuarioId == null
+                ? productoRepository.findByTipoProductoIdAndActivoTrueOrderByNombreAsc(tipoProductoId)
+                : productoRepository.findByTipoProductoIdAndUsuarioIdActivos(tipoProductoId, usuarioId))
                 .stream()
                 .map(productoMapper::toResponse)
                 .toList();
+
+        return productos;
     }
 }

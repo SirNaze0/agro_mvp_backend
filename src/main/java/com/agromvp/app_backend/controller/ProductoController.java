@@ -15,12 +15,13 @@ public class ProductoController {
     private final ProductoService productoService;
 
     @GetMapping
-    public List<ProductoResponse> listarActivos() {
-        return productoService.listarActivos();
+    public List<ProductoResponse> listarActivos(@RequestParam(required = false) Long usuarioId) {
+        return productoService.listarActivos(usuarioId);
     }
 
     @GetMapping("/por-tipo/{tipoProductoId}")
-    public List<ProductoResponse> listarPorTipo(@PathVariable Long tipoProductoId) {
-        return productoService.listarPorTipo(tipoProductoId);
+    public List<ProductoResponse> listarPorTipo(@PathVariable Long tipoProductoId,
+                                                @RequestParam(required = false) Long usuarioId) {
+        return productoService.listarPorTipo(tipoProductoId, usuarioId);
     }
 }

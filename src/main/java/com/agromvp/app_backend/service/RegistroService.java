@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -24,12 +25,14 @@ public class RegistroService {
     private final ProductoRepository productoRepository;
     private final IndicadorRepository indicadorRepository;
     private final ProductoIndicadorRepository productoIndicadorRepository;
+    private final UsuarioProductoRepository usuarioProductoRepository;
     private final RegistroMapper registroMapper;
 
     @Transactional
     public RegistroResponse crear(RegistroCreateRequest request) {
 
-        if (registroRepository.findByClientUuid(request.getClientUuid()).isPresent()) {
+        UUID registroClientUuid = request.getClientUuid() != null ? request.getClientUuid() : UUID.randomUUID();
+        if (registroRepository.findByClientUuid(registroClientUuid).isPresent()) {
             throw new BadRequestException("Ya existe un registro con ese clientUuid.");
         }
 
@@ -39,13 +42,14 @@ public class RegistroService {
         Producto producto = productoRepository.findById(request.getProductoId())
                 .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con id: " + request.getProductoId()));
 
+        validarAsignacionUsuarioProducto(usuario.getId(), producto.getId());
         validarEstados(request);
         validarUbicacion(request);
 
         LocalDateTime ahora = LocalDateTime.now();
 
         Registro registro = Registro.builder()
-                .clientUuid(request.getClientUuid())
+                .clientUuid(registroClientUuid)
                 .usuario(usuario)
                 .producto(producto)
                 .fechaRegistro(request.getFechaRegistro())
@@ -63,10 +67,11 @@ public class RegistroService {
         Registro registroGuardado = registroRepository.save(registro);
 
         for (RegistroValorRequest valorRequest : request.getValores()) {
+            UUID valorClientUuid = valorRequest.getClientUuid() != null ? valorRequest.getClientUuid() : UUID.randomUUID();
 
-            if (registroValorRepository.findByClientUuid(valorRequest.getClientUuid()).isPresent()) {
+            if (registroValorRepository.findByClientUuid(valorClientUuid).isPresent()) {
                 throw new BadRequestException(
-                        "Ya existe un valor de registro con clientUuid: " + valorRequest.getClientUuid()
+                        "Ya existe un valor de registro con clientUuid: " + valorClientUuid
                 );
             }
 
@@ -89,7 +94,7 @@ public class RegistroService {
             validarValorSegunTipo(indicador, valorRequest);
 
             RegistroValor registroValor = RegistroValor.builder()
-                    .clientUuid(valorRequest.getClientUuid())
+                    .clientUuid(valorClientUuid)
                     .registro(registroGuardado)
                     .indicador(indicador)
                     .valorNumerico(valorRequest.getValorNumerico())
@@ -107,12 +112,29 @@ public class RegistroService {
     }
 
     private void validarEstados(RegistroCreateRequest request) {
-        if (!request.getEstadoRegistro().matches("BORRADOR|COMPLETO|ERROR")) {
-            throw new BadRequestException("estadoRegistro debe ser BORRADOR, COMPLETO o ERROR");
+        if (request.getEstadoRegistro() == null || request.getEstadoRegistro().isBlank()) {
+            request.setEstadoRegistro("PENDIENTE");
         }
 
-        if (!request.getEstadoFoto().matches("SIN_FOTO|PENDIENTE|SINCRONIZADA")) {
-            throw new BadRequestException("estadoFoto debe ser SIN_FOTO, PENDIENTE o SINCRONIZADA");
+        if (!request.getEstadoRegistro().matches("PENDIENTE|COMPLETO|SINCRONIZADO|ERROR")) {
+            throw new BadRequestException("estadoRegistro debe ser PENDIENTE, COMPLETO, SINCRONIZADO o ERROR");
+        }
+
+        if (request.getEstadoFoto() == null || request.getEstadoFoto().isBlank()) {
+            request.setEstadoFoto("SIN_FOTO");
+        }
+
+        if (!request.getEstadoFoto().matches("SIN_FOTO|PENDIENTE|SINCRONIZADA|ERROR")) {
+            throw new BadRequestException("estadoFoto debe ser SIN_FOTO, PENDIENTE, SINCRONIZADA o ERROR");
+        }
+    }
+
+    private void validarAsignacionUsuarioProducto(Long usuarioId, Long productoId) {
+        boolean asignacionActiva = usuarioProductoRepository
+                .existsByUsuarioIdAndProductoIdAndActivoTrue(usuarioId, productoId);
+
+        if (!asignacionActiva) {
+            throw new BadRequestException("El producto no está asignado al usuario o la asignación está inactiva");
         }
     }
 

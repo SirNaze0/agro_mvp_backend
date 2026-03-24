@@ -20,6 +20,7 @@ public class ProductoIndicadorResponse {
     private Long indicadorId;
     private String indicadorCodigo;
     private String indicadorNombre;
+    private Integer tipoIndicador;
     private String unidadMedida;
     private String tipoDato;
 }
